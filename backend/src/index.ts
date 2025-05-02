@@ -10,6 +10,10 @@ app.use(express.json());
 
 app.use("/patients", patientRoutes);
 
+app.get("/ping", (req, res) => {
+  res.status(200).send("pong");
+});
+
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log(`Server is running at http://localhost:${PORT}`);
