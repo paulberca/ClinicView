@@ -1,6 +1,7 @@
 import "./globals.css";
+import { Toaster } from "react-hot-toast";
 import { ConnectionErrorProvider } from "@/contexts/ConnectionErrorContext";
-import ConnectionErrorModal from "@/components/ConnectionErrorModal";
+import Sidebar from "@/components/sidebar/Sidebar";
 
 export default function RootLayout({
   children,
@@ -11,8 +12,13 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <ConnectionErrorProvider>
-          {children}
-          <ConnectionErrorModal />
+          <div className="flex min-h-screen">
+            <Sidebar />
+            <main className="flex-1 p-6 bg-gray-50 overflow-auto">
+              {children}
+            </main>
+          </div>
+          <Toaster position="top-right" reverseOrder={false} />
         </ConnectionErrorProvider>
       </body>
     </html>
