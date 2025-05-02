@@ -1,8 +1,6 @@
-import axios from "axios";
-
-const API_BASE = "http://localhost:4000";
+import axios from "@/lib/axios";
 
 export const fetchPatients = async () => {
-  const res = await axios.get(`${API_BASE}/patients`);
+  const res = await axios.get("/patients");
   return res.data;
 };
