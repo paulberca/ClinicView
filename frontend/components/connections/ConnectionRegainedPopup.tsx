@@ -9,10 +9,7 @@ interface Props {
 
 const ConnectionRegainedPopup: React.FC<Props> = ({ message, onClose }) => {
   return (
-    <div
-      className={styles.popup}
-      style={{ backgroundColor: "rgba(0, 255, 0, 0.8)" }}
-    >
+    <div className={styles.popup} style={{ backgroundColor: "#2e7d32" }}>
       {" "}
       {/* Green for "Connection Restored" */}
       <div className={styles.popupMessage}>{message}</div>

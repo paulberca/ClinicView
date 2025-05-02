@@ -3,7 +3,7 @@
   top: 20px;
   right: 20px;
   background-color: rgba(255, 0, 0, 0.8); /* Red for "Lost Connection" */
-  color: black;
+  color: white;
   padding: 15px;
   border-radius: 5px;
   display: flex;
@@ -14,16 +14,17 @@
 
 .popupMessage {
   margin-right: 10px;
-  font-size: 20px;
+  font-size: 18px;
 }
 
 .closeButton {
-  background: rgba(136, 136, 136, 0.8);
+  background: rgb(206, 206, 206);
   border-radius: 5px;
   border: none;
-  color: white;
+  padding: 5px 10px;
+  color: rgb(53, 53, 53);
   font-weight: bold;
   cursor: pointer;
   margin-left: 10px;
-  font-size: 20px;
+  font-size: 18px;
 }
