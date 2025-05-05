@@ -1,10 +1,31 @@
 import express from "express";
 import { prisma } from "../prisma";
+import { Prisma } from "@prisma/client";
 
 const router = express.Router();
 
-router.get("/", async (_, res) => {
-  const patients = await prisma.patient.findMany();
+router.get("/", async (req, res) => {
+  const page = parseInt(req.query.page as string) || 1;
+  const limit = parseInt(req.query.limit as string) || 10;
+  const search = req.query.search as string;
+  const skip = (page - 1) * limit;
+
+  const where: Prisma.PatientWhereInput = search
+    ? {
+        name: {
+          contains: search,
+          mode: Prisma.QueryMode.insensitive,
+        },
+      }
+    : {};
+
+  const patients = await prisma.patient.findMany({
+    where,
+    skip,
+    take: limit,
+    orderBy: { id: "asc" },
+  });
+
   res.json(patients);
 });
 
@@ -16,15 +37,25 @@ router.get("/:id", async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
-  const data = req.body;
-  const patient = await prisma.patient.create({
-    data: {
-      ...data,
-      dateOfBirth: new Date(data.dateOfBirth),
-      admissionDate: new Date(data.admissionDate),
-    },
-  });
-  res.json(patient);
+  try {
+    const data = req.body;
+
+    const patient = await prisma.patient.create({
+      data: {
+        ...data,
+        dateOfBirth: new Date(data.dateOfBirth),
+        admissionDate: new Date(data.admissionDate),
+        allergies: Array.isArray(data.allergies)
+          ? data.allergies
+          : data.allergies.split(",").map((a: string) => a.trim()),
+      },
+    });
+
+    res.json(patient);
+  } catch (err) {
+    console.error("Error creating patient:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
 
 router.put("/:id", async (req, res) => {
