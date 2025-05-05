@@ -8,6 +8,8 @@ router.get("/", async (req, res) => {
   const page = parseInt(req.query.page as string) || 1;
   const limit = parseInt(req.query.limit as string) || 10;
   const search = req.query.search as string;
+  const sortBy = req.query.sortBy as string; // e.g., "condition" or "admissionDate"
+  const sortOrder = (req.query.sortOrder as string) === "desc" ? "desc" : "asc"; // default to "asc"
   const skip = (page - 1) * limit;
 
   const where: Prisma.PatientWhereInput = search
@@ -19,11 +21,16 @@ router.get("/", async (req, res) => {
       }
     : {};
 
+  // Default sort is by ID if no valid sortBy is given
+  const validSortFields = ["condition", "admissionDate"];
+  const orderBy: Prisma.PatientOrderByWithRelationInput =
+    validSortFields.includes(sortBy) ? { [sortBy]: sortOrder } : { id: "asc" };
+
   const patients = await prisma.patient.findMany({
     where,
     skip,
     take: limit,
-    orderBy: { id: "asc" },
+    orderBy,
   });
 
   res.json(patients);
