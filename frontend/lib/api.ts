@@ -1,8 +1,20 @@
 import axios from "@/lib/axios";
 
-export const fetchPatients = async (page = 1, limit = 10, search = "") => {
+export const fetchPatients = async (
+  page = 1,
+  limit = 10,
+  search = "",
+  sortBy = "",
+  sortOrder = "asc"
+) => {
   const res = await axios.get("/patients", {
-    params: { page, limit, search },
+    params: {
+      page,
+      limit,
+      search,
+      ...(sortBy && { sortBy }),
+      ...(sortBy && sortOrder && { sortOrder }),
+    },
   });
   return res.data;
 };

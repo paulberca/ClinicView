@@ -11,23 +11,31 @@ export default function PatientsTable({ searchTerm }: { searchTerm: string }) {
   const [patients, setPatients] = useState<any[]>([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const [sortBy, setSortBy] = useState<"condition" | "admissionDate" | "">("");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const loader = useRef<HTMLDivElement | null>(null);
   const limit = 30;
 
-  // Reset on search change
+  // Reset on search or sort change
   useEffect(() => {
     setPatients([]);
     setPage(1);
     setHasMore(true);
-  }, [searchTerm]);
+  }, [searchTerm, sortBy, sortOrder]);
 
   useEffect(() => {
     loadPatients();
-  }, [page, searchTerm]);
+  }, [page, searchTerm, sortBy, sortOrder]);
 
   const loadPatients = async () => {
     try {
-      const newPatients = await fetchPatients(page, limit, searchTerm);
+      const newPatients = await fetchPatients(
+        page,
+        limit,
+        searchTerm,
+        sortBy,
+        sortOrder
+      );
       setPatients((prev) => [...prev, ...newPatients]);
       if (newPatients.length < limit) setHasMore(false);
     } catch (error) {
@@ -51,6 +59,15 @@ export default function PatientsTable({ searchTerm }: { searchTerm: string }) {
     return () => observer.disconnect();
   }, [hasMore]);
 
+  const handleSort = (field: "condition" | "admissionDate") => {
+    if (sortBy === field) {
+      setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortBy(field);
+      setSortOrder("asc");
+    }
+  };
+
   return (
     <>
       <table className={styles.table}>
@@ -60,8 +77,20 @@ export default function PatientsTable({ searchTerm }: { searchTerm: string }) {
             <th>Gender</th>
             <th>Contact Number</th>
             <th>Blood Type</th>
-            <th>Admission Date</th>
-            <th>Condition</th>
+            <th
+              onClick={() => handleSort("admissionDate")}
+              className={styles.sortable}
+            >
+              Admission Date{" "}
+              {sortBy === "admissionDate" && (sortOrder === "asc" ? "↑" : "↓")}
+            </th>
+            <th
+              onClick={() => handleSort("condition")}
+              className={styles.sortable}
+            >
+              Condition{" "}
+              {sortBy === "condition" && (sortOrder === "asc" ? "↑" : "↓")}
+            </th>
           </tr>
         </thead>
         <tbody>
