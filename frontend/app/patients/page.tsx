@@ -3,8 +3,10 @@
 import { useState } from "react";
 import PatientsTable from "./PatientsTable";
 import styles from "@/styles/patients.module.css";
+import { useRouter } from "next/navigation";
 
 export default function PatientsPage() {
+  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
 
   return (
@@ -18,7 +20,12 @@ export default function PatientsPage() {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
-        <button className={styles.addButton}>Add Patient</button>
+        <button
+          className={styles.addButton}
+          onClick={() => router.push("/patients/add")}
+        >
+          Add Patient
+        </button>
       </div>
       <PatientsTable searchTerm={searchTerm} />
     </div>

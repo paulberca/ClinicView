@@ -37,15 +37,25 @@ router.get("/:id", async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
-  const data = req.body;
-  const patient = await prisma.patient.create({
-    data: {
-      ...data,
-      dateOfBirth: new Date(data.dateOfBirth),
-      admissionDate: new Date(data.admissionDate),
-    },
-  });
-  res.json(patient);
+  try {
+    const data = req.body;
+
+    const patient = await prisma.patient.create({
+      data: {
+        ...data,
+        dateOfBirth: new Date(data.dateOfBirth),
+        admissionDate: new Date(data.admissionDate),
+        allergies: Array.isArray(data.allergies)
+          ? data.allergies
+          : data.allergies.split(",").map((a: string) => a.trim()),
+      },
+    });
+
+    res.json(patient);
+  } catch (err) {
+    console.error("Error creating patient:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
 
 router.put("/:id", async (req, res) => {

@@ -3,8 +3,11 @@
 import styles from "@/styles/patients.module.css";
 import { useEffect, useRef, useState } from "react";
 import { fetchPatients } from "@/lib/api";
+import { useRouter } from "next/navigation";
 
 export default function PatientsTable({ searchTerm }: { searchTerm: string }) {
+  const router = useRouter();
+
   const [patients, setPatients] = useState<any[]>([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -63,7 +66,11 @@ export default function PatientsTable({ searchTerm }: { searchTerm: string }) {
         </thead>
         <tbody>
           {patients.map((p, i) => (
-            <tr key={i}>
+            <tr
+              key={i}
+              onClick={() => router.push(`/patients/edit/${p.id}`)}
+              style={{ cursor: "pointer" }}
+            >
               <td>{p.name}</td>
               <td>{p.gender}</td>
               <td>{p.contactNumber}</td>
