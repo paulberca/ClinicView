@@ -1,0 +1,112 @@
+.statsContainer {
+  width: 100%;
+  padding: 20px;
+}
+
+.statsTitle {
+  margin-bottom: 30px;
+  font-size: 1.8rem;
+  color: #333;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.statCard {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  text-align: center;
+}
+
+.statCard h3 {
+  font-size: 1.1rem;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.statValue {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #2e7d32;
+}
+
+.chartSection {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 30px;
+}
+
+.chartContainer {
+  gap: 20px;
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.chartContainer h3 {
+  font-size: 1.2rem;
+  color: #333;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.chartWrapper {
+  height: 250px;
+  width: 100%;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.conditionStats,
+.genderStats {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.statRow {
+  display: grid;
+  grid-template-columns: 100px 1fr 50px;
+  align-items: center;
+  gap: 10px;
+}
+
+.statBar {
+  height: 25px;
+  background-color: #f0f0f0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.statBarFill {
+  height: 100%;
+  transition: width 0.5s ease-in-out;
+}
+
+.stableBar {
+  background-color: #2e7d32;
+}
+
+.recoveringBar {
+  background-color: #f57c00;
+}
+
+.criticalBar {
+  background-color: #c62828;
+}
+
+.maleBar {
+  background-color: #1976d2;
+}
+
+.femaleBar {
+  background-color: #9c27b0;
+}
