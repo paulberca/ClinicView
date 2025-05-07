@@ -11,13 +11,22 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 const StatsScreen = () => {
   const [patients, setPatients] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [hasMore, setHasMore] = useState<boolean>(true);
 
   useEffect(() => {
     const loadPatients = async () => {
+      const allPatients: any[] = [];
+      let page = 1;
+      const limit = 50000;
+      let fetched = [];
+
       try {
-        const fetchedPatients = await fetchPatients(1, 2000000);
-        setPatients(fetchedPatients);
+        do {
+          fetched = await fetchPatients(page, limit);
+          allPatients.push(...fetched);
+          setPatients(allPatients);
+          page++;
+        } while (fetched.length === limit);
+        setPatients(allPatients);
       } catch (error) {
         console.error("Error fetching patients:", error);
       } finally {
