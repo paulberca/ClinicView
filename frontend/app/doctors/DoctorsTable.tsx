@@ -7,36 +7,30 @@ import { useRouter } from "next/navigation";
 
 export default function DoctorsTable({ searchTerm }: { searchTerm: string }) {
   const router = useRouter();
-
   const [doctors, setDoctors] = useState<any[]>([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const [sortBy, setSortBy] = useState<"specialty" | "">("");
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const loader = useRef<HTMLDivElement | null>(null);
   const limit = 30;
 
-  // Reset on search or sort change
   useEffect(() => {
     setDoctors([]);
     setPage(1);
     setHasMore(true);
-  }, [searchTerm, sortBy, sortOrder]);
+  }, [searchTerm]);
 
   useEffect(() => {
     loadDoctors();
-  }, [page, searchTerm, sortBy, sortOrder]);
+  }, [page, searchTerm]);
 
   const loadDoctors = async () => {
     try {
-      const newDoctors = await fetchDoctors(
-        page,
-        limit,
-        searchTerm,
-        sortBy,
-        sortOrder
+      const newDoctors = await fetchDoctors(page, limit, searchTerm);
+
+      setDoctors((prev) =>
+        page === 1 ? newDoctors : [...prev, ...newDoctors]
       );
-      setDoctors((prev) => [...prev, ...newDoctors]);
+
       if (newDoctors.length < limit) setHasMore(false);
     } catch (error) {
       console.error("Error fetching doctors:", error);
@@ -59,28 +53,13 @@ export default function DoctorsTable({ searchTerm }: { searchTerm: string }) {
     return () => observer.disconnect();
   }, [hasMore]);
 
-  const handleSort = (field: "specialty") => {
-    if (sortBy === field) {
-      setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
-    } else {
-      setSortBy(field);
-      setSortOrder("asc");
-    }
-  };
-
   return (
     <>
       <table className={styles.table}>
         <thead>
           <tr>
             <th>Name</th>
-            <th
-              onClick={() => handleSort("specialty")}
-              className={styles.sortable}
-            >
-              Specialty{" "}
-              {sortBy === "specialty" && (sortOrder === "asc" ? "↑" : "↓")}
-            </th>
+            <th>Specialty</th>
             <th>Contact Number</th>
           </tr>
         </thead>

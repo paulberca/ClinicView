@@ -17,19 +17,6 @@ type Props = {
   onCancel: () => void;
 };
 
-const specialtyOptions = [
-  "General Practice",
-  "Pediatrics",
-  "Cardiology",
-  "Neurology",
-  "Orthopedics",
-  "Dermatology",
-  "Psychiatry",
-  "Oncology",
-  "Gastroenterology",
-  "Endocrinology",
-];
-
 export default function DoctorForm({
   doctor,
   onSubmit,
@@ -37,24 +24,18 @@ export default function DoctorForm({
   onCancel,
 }: Props) {
   const [form, setForm] = useState<Doctor>(
-    doctor
-      ? {
-          ...doctor,
-        }
-      : {
-          name: "",
-          specialty: "",
-          contactNumber: "",
-        }
+    doctor ?? {
+      name: "",
+      specialty: "",
+      contactNumber: "",
+    }
   );
 
   const [errors, setErrors] = useState<Partial<Record<keyof Doctor, string>>>(
     {}
   );
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
     setErrors((prev) => ({ ...prev, [name]: "" }));
@@ -62,12 +43,10 @@ export default function DoctorForm({
 
   const validate = () => {
     const newErrors: typeof errors = {};
-
     if (!form.name.trim()) newErrors.name = "Name is required.";
     if (!form.specialty.trim()) newErrors.specialty = "Specialty is required.";
     if (!form.contactNumber.trim())
       newErrors.contactNumber = "Contact number is required.";
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -76,46 +55,17 @@ export default function DoctorForm({
     if (validate()) onSubmit(form);
   };
 
-  const renderInput = (
-    label: string,
-    name: keyof Doctor,
-    type: string = "text"
-  ) => (
+  const renderInput = (label: string, name: keyof Doctor) => (
     <div className={styles.inputGroup}>
       <label htmlFor={name}>{label}</label>
       <input
         id={name}
         name={name}
-        type={type}
+        type="text"
         value={form[name]}
         onChange={handleChange}
         className={errors[name] ? styles.inputError : ""}
       />
-      {errors[name] && <p className={styles.errorText}>{errors[name]}</p>}
-    </div>
-  );
-
-  const renderSelect = (
-    label: string,
-    name: keyof Doctor,
-    options: string[]
-  ) => (
-    <div className={styles.inputGroup}>
-      <label htmlFor={name}>{label}</label>
-      <select
-        id={name}
-        name={name}
-        value={form[name]}
-        onChange={handleChange}
-        className={errors[name] ? styles.inputError : ""}
-      >
-        <option value="">Select {label.toLowerCase()}</option>
-        {options.map((option) => (
-          <option key={option} value={option}>
-            {option}
-          </option>
-        ))}
-      </select>
       {errors[name] && <p className={styles.errorText}>{errors[name]}</p>}
     </div>
   );
@@ -134,7 +84,7 @@ export default function DoctorForm({
         className={styles.formGrid}
       >
         {renderInput("Name", "name")}
-        {renderSelect("Specialty", "specialty", specialtyOptions)}
+        {renderInput("Specialty", "specialty")}
         {renderInput("Contact Number", "contactNumber")}
 
         <div className={styles.buttonGroup}>

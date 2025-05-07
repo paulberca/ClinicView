@@ -8,28 +8,45 @@ import axios from "@/lib/axios";
 export default function EditDoctorPage() {
   const [doctor, setDoctor] = useState<Doctor | null>(null);
   const router = useRouter();
-  const { id } = useParams();
+  const params = useParams();
 
   useEffect(() => {
-    axios.get(`/doctors/${id}`).then((res) => setDoctor(res.data));
-  }, [id]);
+    const fetchDoctor = async () => {
+      try {
+        const { data } = await axios.get(`/doctors/${params.id}`);
+        setDoctor(data);
+      } catch (error) {
+        console.error("Failed to fetch doctor:", error);
+      }
+    };
 
-  const handleUpdate = async (data: Doctor) => {
-    await axios.put(`/doctors/${id}`, data);
-    router.push("/doctors");
+    if (params.id) fetchDoctor();
+  }, [params.id]);
+
+  const handleEdit = async (data: Doctor) => {
+    try {
+      await axios.put(`/doctors/${params.id}`, data);
+      router.push("/doctors");
+    } catch (error) {
+      console.error("Failed to update doctor:", error);
+    }
   };
 
   const handleDelete = async () => {
-    await axios.delete(`/doctors/${id}`);
-    router.push("/doctors");
+    try {
+      await axios.delete(`/doctors/${params.id}`);
+      router.push("/doctors");
+    } catch (error) {
+      console.error("Failed to delete doctor:", error);
+    }
   };
 
-  if (!doctor) return <div>Loading...</div>;
+  if (!doctor) return <p>Loading...</p>;
 
   return (
     <DoctorForm
       doctor={doctor}
-      onSubmit={handleUpdate}
+      onSubmit={handleEdit}
       onDelete={handleDelete}
       onCancel={() => router.push("/doctors")}
     />

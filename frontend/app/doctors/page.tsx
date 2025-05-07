@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import DoctorsTable from "./DoctorsTable";
-import styles from "@/styles/patients.module.css"; // Reusing the same styles
+import styles from "@/styles/patients.module.css";
 import { useRouter } from "next/navigation";
 
 export default function DoctorsPage() {
