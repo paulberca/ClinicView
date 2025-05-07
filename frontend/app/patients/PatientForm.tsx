@@ -14,7 +14,7 @@ export type Patient = {
   homeAddress: string;
   allergies: string;
   chronicCondition: string;
-  familyDoctor: string;
+  familyDoctor: string | { name: string };
   insurance: string;
   condition: string;
 };
@@ -44,10 +44,16 @@ export default function PatientForm({
     }
   };
 
-  const [form, setForm] = useState<Patient>(
+  const [form, setForm] = useState<
+    Omit<Patient, "familyDoctor"> & { familyDoctor: string }
+  >(
     patient
       ? {
           ...patient,
+          familyDoctor:
+            typeof patient.familyDoctor === "object"
+              ? patient.familyDoctor.name
+              : patient.familyDoctor,
           admissionDate: formatDate(patient.admissionDate),
           dateOfBirth: formatDate(patient.dateOfBirth),
         }

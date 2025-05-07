@@ -32,6 +32,21 @@ export default function Sidebar() {
               href="#"
               className={clsx(
                 styles.navLink,
+                pathname.startsWith("/doctors") && styles.navLinkActive
+              )}
+              onClick={(e) => {
+                e.preventDefault();
+                router.push("/doctors");
+              }}
+            >
+              Doctors
+            </a>
+          </li>
+          <li className={styles.navItem}>
+            <a
+              href="#"
+              className={clsx(
+                styles.navLink,
                 pathname.startsWith("/stats") && styles.navLinkActive
               )}
               onClick={(e) => {

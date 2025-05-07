@@ -31,6 +31,11 @@ router.get("/", async (req, res) => {
     skip,
     take: limit,
     orderBy,
+    include: {
+      familyDoctor: {
+        select: { name: true },
+      },
+    },
   });
 
   res.json(patients);
@@ -39,6 +44,11 @@ router.get("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
   const patient = await prisma.patient.findUnique({
     where: { id: Number(req.params.id) },
+    include: {
+      familyDoctor: {
+        select: { name: true },
+      },
+    },
   });
   res.json(patient);
 });
