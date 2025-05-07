@@ -10,23 +10,33 @@ export default function DoctorsTable({ searchTerm }: { searchTerm: string }) {
   const [doctors, setDoctors] = useState<any[]>([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const [sortBy, setSortBy] = useState<"specialty" | "patientCount" | "">("");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const loader = useRef<HTMLDivElement | null>(null);
   const limit = 30;
 
+  // Reset on search or sort change
   useEffect(() => {
     setDoctors([]);
     setPage(1);
     setHasMore(true);
-  }, [searchTerm]);
+  }, [searchTerm, sortBy, sortOrder]);
 
   useEffect(() => {
     loadDoctors();
-  }, [page, searchTerm]);
+  }, [page, searchTerm, sortBy, sortOrder]);
 
   const loadDoctors = async () => {
     try {
-      const newDoctors = await fetchDoctors(page, limit, searchTerm);
+      const newDoctors = await fetchDoctors(
+        page,
+        limit,
+        searchTerm,
+        sortBy,
+        sortOrder
+      );
 
+      // If it's the first page, replace the list. Otherwise, append.
       setDoctors((prev) =>
         page === 1 ? newDoctors : [...prev, ...newDoctors]
       );
@@ -53,6 +63,15 @@ export default function DoctorsTable({ searchTerm }: { searchTerm: string }) {
     return () => observer.disconnect();
   }, [hasMore]);
 
+  const handleSort = (field: "specialty" | "patientCount") => {
+    if (sortBy === field) {
+      setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortBy(field);
+      setSortOrder("asc");
+    }
+  };
+
   return (
     <>
       <table className={styles.table}>
@@ -61,6 +80,13 @@ export default function DoctorsTable({ searchTerm }: { searchTerm: string }) {
             <th>Name</th>
             <th>Specialty</th>
             <th>Contact Number</th>
+            <th
+              onClick={() => handleSort("patientCount")}
+              className={styles.sortable}
+            >
+              Patient Count{" "}
+              {sortBy === "patientCount" && (sortOrder === "asc" ? "↑" : "↓")}
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -73,6 +99,7 @@ export default function DoctorsTable({ searchTerm }: { searchTerm: string }) {
               <td>{d.name}</td>
               <td>{d.specialty}</td>
               <td>{d.contactNumber}</td>
+              <td>{d.patientCount}</td>
             </tr>
           ))}
         </tbody>

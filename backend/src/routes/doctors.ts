@@ -4,12 +4,12 @@ import { Prisma } from "@prisma/client";
 
 const router = express.Router();
 
-// Get a list of doctors
+// In your backend route for fetching doctors
 router.get("/", async (req, res) => {
   const page = parseInt(req.query.page as string) || 1;
   const limit = parseInt(req.query.limit as string) || 10;
   const search = req.query.search as string;
-  const sortBy = req.query.sortBy as string; // e.g., "specialty"
+  const sortBy = req.query.sortBy as string; // e.g., "specialty" or "patientCount"
   const sortOrder = (req.query.sortOrder as string) === "desc" ? "desc" : "asc";
   const skip = (page - 1) * limit;
 
@@ -22,8 +22,8 @@ router.get("/", async (req, res) => {
       }
     : {};
 
-  // Default sort by ID if no valid sortBy is given
-  const validSortFields = ["specialty"];
+  // Default sorting by ID if no valid sortBy is provided
+  const validSortFields = ["specialty", "name", "contactNumber"];
   const orderBy: Prisma.FamilyDoctorOrderByWithRelationInput =
     validSortFields.includes(sortBy) ? { [sortBy]: sortOrder } : { id: "asc" };
 
@@ -31,10 +31,32 @@ router.get("/", async (req, res) => {
     where,
     skip,
     take: limit,
-    orderBy,
+    orderBy, // No sorting by patientCount here
+    include: {
+      _count: {
+        select: { patients: true }, // Fetch patient count
+      },
+    },
   });
 
-  res.json(doctors);
+  // Add patient count to the doctor objects
+  const doctorsWithCount = doctors.map((doctor) => ({
+    ...doctor,
+    patientCount: doctor._count.patients,
+  }));
+
+  // If sorting by patientCount, sort manually in the application layer
+  if (sortBy === "patientCount") {
+    doctorsWithCount.sort((a, b) => {
+      if (sortOrder === "asc") {
+        return a.patientCount - b.patientCount;
+      } else {
+        return b.patientCount - a.patientCount;
+      }
+    });
+  }
+
+  res.json(doctorsWithCount);
 });
 
 // Get a single doctor by ID
