@@ -40,4 +40,54 @@ router.get("/:id", async (req, res) => {
   res.json(doctor);
 });
 
+// Create a new doctor
+router.post("/", async (req, res) => {
+  try {
+    const data = req.body;
+    const doctor = await prisma.familyDoctor.create({
+      data: {
+        name: data.name,
+        specialty: data.specialty,
+        contactNumber: data.contactNumber,
+      },
+    });
+    res.status(201).json(doctor);
+  } catch (err) {
+    console.error("Error creating doctor:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Update an existing doctor
+router.put("/:id", async (req, res) => {
+  try {
+    const data = req.body;
+    const doctor = await prisma.familyDoctor.update({
+      where: { id: Number(req.params.id) },
+      data: {
+        name: data.name,
+        specialty: data.specialty,
+        contactNumber: data.contactNumber,
+      },
+    });
+    res.json(doctor);
+  } catch (err) {
+    console.error("Error updating doctor:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Delete a doctor
+router.delete("/:id", async (req, res) => {
+  try {
+    const doctor = await prisma.familyDoctor.delete({
+      where: { id: Number(req.params.id) },
+    });
+    res.json(doctor);
+  } catch (err) {
+    console.error("Error deleting doctor:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 export default router;
