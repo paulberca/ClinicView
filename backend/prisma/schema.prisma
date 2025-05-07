@@ -13,8 +13,16 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model FamilyDoctor {
+  id            Int       @id @default(autoincrement())
+  name          String
+  specialty     String
+  contactNumber String
+  patients      Patient[] // 1:N relation with Patient
+}
+
 model Patient {
-  id               Int      @id @default(autoincrement())
+  id               Int          @id @default(autoincrement())
   name             String
   dateOfBirth      DateTime
   gender           String
@@ -23,8 +31,9 @@ model Patient {
   allergies        String[]
   bloodType        String
   chronicCondition String
-  familyDoctor     String
   insurance        String
   admissionDate    DateTime
   condition        String
+  familyDoctorId   Int
+  familyDoctor     FamilyDoctor @relation(fields: [familyDoctorId], references: [id])
 }

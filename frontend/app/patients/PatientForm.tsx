@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "@/styles/patients.module.css";
+import { fetchDoctors } from "@/lib/api";
 
 export type Patient = {
   id?: number;
@@ -14,9 +15,14 @@ export type Patient = {
   homeAddress: string;
   allergies: string;
   chronicCondition: string;
-  familyDoctor: string;
+  familyDoctorId: number;
   insurance: string;
   condition: string;
+};
+
+type Doctor = {
+  id: number;
+  name: string;
 };
 
 type Props = {
@@ -44,6 +50,7 @@ export default function PatientForm({
     }
   };
 
+  const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [form, setForm] = useState<Patient>(
     patient
       ? {
@@ -61,7 +68,7 @@ export default function PatientForm({
           homeAddress: "",
           allergies: "",
           chronicCondition: "",
-          familyDoctor: "",
+          familyDoctorId: 0,
           insurance: "",
           condition: "",
         }
@@ -71,11 +78,27 @@ export default function PatientForm({
     {}
   );
 
+  useEffect(() => {
+    const loadDoctors = async () => {
+      try {
+        const doctorList = await fetchDoctors(); // Fetching doctors using the api function
+        setDoctors(doctorList);
+      } catch (error) {
+        console.error("Failed to load doctors:", error);
+      }
+    };
+
+    loadDoctors();
+  }, []);
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    setForm((prev) => ({
+      ...prev,
+      [name]: name === "familyDoctorId" ? Number(value) : value,
+    }));
     setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
@@ -112,8 +135,8 @@ export default function PatientForm({
 
     if (!form.homeAddress.trim())
       newErrors.homeAddress = "Home address is required.";
-    if (!form.familyDoctor.trim())
-      newErrors.familyDoctor = "Family doctor is required.";
+    if (!form.familyDoctorId)
+      newErrors.familyDoctorId = "Family doctor is required.";
     if (!form.insurance.trim()) newErrors.insurance = "Insurance is required.";
     if (!form.condition.trim()) newErrors.condition = "Condition is required.";
 
@@ -136,7 +159,7 @@ export default function PatientForm({
         id={name}
         name={name}
         type={type}
-        value={form[name]}
+        value={form[name] as string}
         onChange={handleChange}
         className={errors[name] ? styles.inputError : ""}
       />
@@ -147,7 +170,7 @@ export default function PatientForm({
   const renderSelect = (
     label: string,
     name: keyof Patient,
-    options: string[]
+    options: string[] | { label: string; value: string | number }[]
   ) => (
     <div className={styles.inputGroup}>
       <label htmlFor={name}>{label}</label>
@@ -159,11 +182,17 @@ export default function PatientForm({
         className={errors[name] ? styles.inputError : ""}
       >
         <option value="">Select {label.toLowerCase()}</option>
-        {options.map((option) => (
-          <option key={option} value={option}>
-            {option}
-          </option>
-        ))}
+        {options.map((option) =>
+          typeof option === "string" ? (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ) : (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          )
+        )}
       </select>
       {errors[name] && <p className={styles.errorText}>{errors[name]}</p>}
     </div>
@@ -191,46 +220,34 @@ export default function PatientForm({
         {renderInput("Home Address", "homeAddress")}
         {renderInput("Allergies (comma-separated)", "allergies")}
         {renderInput("Chronic Condition", "chronicCondition")}
-        {renderInput("Family Doctor", "familyDoctor")}
+        {renderSelect(
+          "Family Doctor",
+          "familyDoctorId",
+          doctors.map((d) => ({ label: d.name, value: d.id }))
+        )}
         {renderInput("Insurance", "insurance")}
         {renderSelect("Condition", "condition", conditionOptions)}
 
         <div className={styles.buttonGroup}>
-          {patient ? (
-            <>
-              <button type="submit" className={styles.confirmButton}>
-                Confirm
-              </button>
-              <button
-                type="button"
-                onClick={onCancel}
-                className={styles.cancelButton}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={onDelete}
-                className={styles.deleteButton}
-              >
-                Delete Patient
-              </button>
-            </>
-          ) : (
-            <>
-              <button type="submit" className={styles.addButton}>
-                Add
-              </button>
-              <button
-                type="button"
-                onClick={onCancel}
-                className={styles.cancelButton}
-                style={{ backgroundColor: "#f44336" }}
-              >
-                Cancel
-              </button>
-            </>
+          <button type="submit" className={styles.confirmButton}>
+            Confirm
+          </button>
+          {onDelete && patient && (
+            <button
+              type="button"
+              onClick={onDelete}
+              className={styles.deleteButton}
+            >
+              Delete
+            </button>
           )}
+          <button
+            type="button"
+            onClick={onCancel}
+            className={styles.cancelButton}
+          >
+            Cancel
+          </button>
         </div>
       </form>
     </div>

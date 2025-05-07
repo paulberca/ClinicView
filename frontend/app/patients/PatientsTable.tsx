@@ -36,7 +36,12 @@ export default function PatientsTable({ searchTerm }: { searchTerm: string }) {
         sortBy,
         sortOrder
       );
-      setPatients((prev) => [...prev, ...newPatients]);
+
+      // If it's the first page, replace the list. Otherwise, append.
+      setPatients((prev) =>
+        page === 1 ? newPatients : [...prev, ...newPatients]
+      );
+
       if (newPatients.length < limit) setHasMore(false);
     } catch (error) {
       console.error("Error fetching patients:", error);

@@ -31,6 +31,11 @@ router.get("/", async (req, res) => {
     skip,
     take: limit,
     orderBy,
+    include: {
+      familyDoctor: {
+        select: { id: true, name: true }, // Include doctor ID and name
+      },
+    },
   });
 
   res.json(patients);
@@ -39,6 +44,11 @@ router.get("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
   const patient = await prisma.patient.findUnique({
     where: { id: Number(req.params.id) },
+    include: {
+      familyDoctor: {
+        select: { id: true, name: true }, // Include doctor ID and name
+      },
+    },
   });
   res.json(patient);
 });
@@ -55,6 +65,8 @@ router.post("/", async (req, res) => {
         allergies: Array.isArray(data.allergies)
           ? data.allergies
           : data.allergies.split(",").map((a: string) => a.trim()),
+        // Ensure familyDoctorId is included in the data
+        familyDoctorId: data.familyDoctorId,
       },
     });
 
@@ -66,16 +78,44 @@ router.post("/", async (req, res) => {
 });
 
 router.put("/:id", async (req, res) => {
+  const { id } = req.params;
   const data = req.body;
-  const patient = await prisma.patient.update({
-    where: { id: Number(req.params.id) },
-    data: {
-      ...data,
-      dateOfBirth: new Date(data.dateOfBirth),
-      admissionDate: new Date(data.admissionDate),
-    },
-  });
-  res.json(patient);
+
+  try {
+    // Ensure the patient exists before trying to update
+    const patient = await prisma.patient.findUnique({
+      where: { id: Number(id) },
+    });
+
+    if (!patient) {
+      // return res.status(404).json({ error: "Patient not found" });
+      throw new Error("Patient not found.");
+    }
+
+    // Update the patient without including the `id` field in `data`
+    const updatedPatient = await prisma.patient.update({
+      where: { id: Number(id) },
+      data: {
+        name: data.name,
+        dateOfBirth: new Date(data.dateOfBirth),
+        gender: data.gender,
+        contactNumber: data.contactNumber,
+        homeAddress: data.homeAddress,
+        allergies: data.allergies,
+        bloodType: data.bloodType,
+        chronicCondition: data.chronicCondition,
+        insurance: data.insurance,
+        admissionDate: new Date(data.admissionDate),
+        condition: data.condition,
+        familyDoctorId: data.familyDoctorId,
+      },
+    });
+
+    res.json(updatedPatient);
+  } catch (error) {
+    console.error("Error updating patient:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
 
 router.delete("/:id", async (req, res) => {
