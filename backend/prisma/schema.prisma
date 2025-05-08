@@ -19,6 +19,8 @@ model FamilyDoctor {
   specialty     String
   contactNumber String
   patients      Patient[] // 1:N relation with Patient
+
+  @@index([name]) // Index on name for faster lookups
 }
 
 model Patient {
@@ -36,4 +38,8 @@ model Patient {
   condition        String
   familyDoctorId   Int
   familyDoctor     FamilyDoctor @relation(fields: [familyDoctorId], references: [id])
+
+  @@index([name]) // Index on name for faster lookups
+  @@index([familyDoctorId]) // Index on familyDoctorId for faster lookups
+  @@index([admissionDate]) // Index on admissionDate for faster sorting/filtering
 }
