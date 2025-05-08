@@ -26,20 +26,48 @@ def generate_family_doctors():
     
     return doctors
 
-def insert_family_doctors(conn, doctors):
+def generate_doctor_users():
+    users = []
+    for i in range(MAX_DOCTORS):
+        email = f"doctor{i+1}@example.com"
+        password = "hashedpassword"  # replace with actual hash if needed
+        users.append({
+            "email": email,
+            "password": password,
+            "role": "DOCTOR"
+        })
+    return users
+
+def insert_doctor_users(conn, users):
+    cur = conn.cursor()
+    user_ids = []
+    for u in users:
+        cur.execute("""
+            INSERT INTO "users" ("email", "password", "role")
+            VALUES (%s, %s, %s) RETURNING id
+        """, (u["email"], u["password"], u["role"]))
+        user_id = cur.fetchone()[0]
+        user_ids.append(user_id)
+
+    conn.commit()
+    cur.close()
+    return user_ids
+
+def insert_family_doctors(conn, doctors, user_ids):
     cur = conn.cursor()
     ids = []
-    for d in doctors:
+    for i, d in enumerate(doctors):
         cur.execute("""
-            INSERT INTO "FamilyDoctor" ("name", "specialty", "contactNumber")
-            VALUES (%s, %s, %s) RETURNING id
-        """, (d['name'], d['specialty'], d['contact_number']))
+            INSERT INTO "FamilyDoctor" ("name", "specialty", "contactNumber", "userId")
+            VALUES (%s, %s, %s, %s) RETURNING id
+        """, (d['name'], d['specialty'], d['contact_number'], user_ids[i]))
         doctor_id = cur.fetchone()[0]
         ids.append(doctor_id)
 
     conn.commit()
     cur.close()
     return ids
+
 
 def generate_patients(count, doctor_ids):
     patients = []
@@ -119,19 +147,24 @@ if __name__ == "__main__":
         password=os.getenv("PG_PASSWORD", "password"),
         port=os.getenv("PG_PORT", 5432)
     )
-
     # Clear existing data
     with conn.cursor() as cur:
         cur.execute('DELETE FROM "Patient";')
         cur.execute('DELETE FROM "FamilyDoctor";')
+        cur.execute('DELETE FROM "users";')
         conn.commit()
 
-    # Generate and insert doctors
+    # Generate and insert users for doctors
+    users = generate_doctor_users()
+    user_ids = insert_doctor_users(conn, users)
+
+    # Generate and insert doctors linked to users
     doctors = generate_family_doctors()
-    doctor_ids = insert_family_doctors(conn, doctors)
+    doctor_ids = insert_family_doctors(conn, doctors, user_ids)
 
     # Generate and insert patients
     patients = generate_patients(args.count, doctor_ids)
     insert_patients(conn, patients)
+
 
     conn.close()

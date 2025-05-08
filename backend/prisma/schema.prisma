@@ -18,9 +18,9 @@ model FamilyDoctor {
   name          String
   specialty     String
   contactNumber String
-  patients      Patient[] // 1:N relation with Patient
-
-  @@index([name]) // Index on name for faster lookups
+  userId        Int?       @unique
+  user          User?      @relation(fields: [userId], references: [id])
+  patients      Patient[]
 }
 
 model Patient {
@@ -42,4 +42,19 @@ model Patient {
   @@index([name]) // Index on name for faster lookups
   @@index([familyDoctorId]) // Index on familyDoctorId for faster lookups
   @@index([admissionDate]) // Index on admissionDate for faster sorting/filtering
+}
+
+model User {
+  id       Int           @id @default(autoincrement())
+  email    String        @unique
+  password String
+  role     Role
+  doctor   FamilyDoctor?
+
+  @@map("users")
+}
+
+enum Role {
+  ADMIN
+  DOCTOR
 }
