@@ -1,27 +1,29 @@
 import express from "express";
 import { prisma } from "../prisma";
 import { Prisma } from "@prisma/client";
+import { authenticate } from "../middleware/auth";
 
 const router = express.Router();
 
-router.get("/", async (req, res) => {
+router.get("/", authenticate, async (req, res) => {
+  const user = (req as any).user;
+
   const page = parseInt(req.query.page as string) || 1;
   const limit = parseInt(req.query.limit as string) || 1000;
   const search = req.query.search as string;
-  const sortBy = req.query.sortBy as string; // e.g., "condition" or "admissionDate"
-  const sortOrder = (req.query.sortOrder as string) === "desc" ? "desc" : "asc"; // default to "asc"
+  const sortBy = req.query.sortBy as string;
+  const sortOrder = (req.query.sortOrder as string) === "desc" ? "desc" : "asc";
   const skip = (page - 1) * limit;
 
-  const where: Prisma.PatientWhereInput = search
-    ? {
-        name: {
-          contains: search,
-          mode: Prisma.QueryMode.insensitive,
-        },
-      }
-    : {};
+  const where: Prisma.PatientWhereInput = {
+    ...(search && {
+      name: { contains: search, mode: Prisma.QueryMode.insensitive },
+    }),
+    ...(user.role === "DOCTOR" && {
+      familyDoctor: { userId: user.userId },
+    }),
+  };
 
-  // Default sort is by ID if no valid sortBy is given
   const validSortFields = ["condition", "admissionDate"];
   const orderBy: Prisma.PatientOrderByWithRelationInput =
     validSortFields.includes(sortBy) ? { [sortBy]: sortOrder } : { id: "asc" };
@@ -32,9 +34,7 @@ router.get("/", async (req, res) => {
     take: limit,
     orderBy,
     include: {
-      familyDoctor: {
-        select: { id: true, name: true }, // Include doctor ID and name
-      },
+      familyDoctor: { select: { id: true, name: true } },
     },
   });
 
