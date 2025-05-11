@@ -1,4 +1,6 @@
 "use client";
+
+import styles from "@/styles/auth.module.css";
 import { useState } from "react";
 import { register } from "@/lib/api";
 import { useRouter } from "next/navigation";
@@ -21,15 +23,15 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="p-6 max-w-sm mx-auto">
-      <h2 className="text-xl font-bold mb-4">Register</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <div className={styles.container}>
+      <h2 className={styles.heading}>Register</h2>
+      <form onSubmit={handleSubmit} className={styles.form}>
         <input
           type="email"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full p-2 border rounded"
+          className={styles.input}
           required
         />
         <input
@@ -37,21 +39,21 @@ export default function RegisterPage() {
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full p-2 border rounded"
+          className={styles.input}
           required
         />
         <select
           value={role}
           onChange={(e) => setRole(e.target.value as "DOCTOR" | "ADMIN")}
-          className="w-full p-2 border rounded"
+          className={styles.select}
         >
           <option value="DOCTOR">Doctor (Regular User)</option>
           <option value="ADMIN">Admin</option>
         </select>
-        {error && <p className="text-red-500 text-sm">{error}</p>}
+        {error && <p className={styles.errorText}>{error}</p>}
         <button
           type="submit"
-          className="w-full bg-green-600 text-white p-2 rounded hover:bg-green-700"
+          className={styles.submitButton}
         >
           Register
         </button>

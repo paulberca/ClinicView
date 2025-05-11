@@ -1,4 +1,6 @@
 "use client";
+
+import styles from "@/styles/auth.module.css";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { login } from "@/lib/api";
@@ -20,15 +22,15 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="p-6 max-w-sm mx-auto">
-      <h2 className="text-xl font-bold mb-4">Login</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <div className={styles.container}>
+      <h2 className={styles.heading}>Login</h2>
+      <form onSubmit={handleSubmit} className={styles.form}>
         <input
           type="email"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full p-2 border rounded"
+          className={styles.input}
           required
         />
         <input
@@ -36,13 +38,13 @@ export default function LoginPage() {
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full p-2 border rounded"
+          className={styles.input}
           required
         />
-        {error && <p className="text-red-500 text-sm">{error}</p>}
+        {error && <p className={styles.errorText}>{error}</p>}
         <button
           type="submit"
-          className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700"
+          className={styles.submitButton}
         >
           Login
         </button>
