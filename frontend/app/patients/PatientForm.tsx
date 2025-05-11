@@ -179,7 +179,7 @@ export default function PatientForm({
         name={name}
         value={form[name]}
         onChange={handleChange}
-        className={errors[name] ? styles.inputError : ""}
+        className={`${styles.select} ${errors[name] ? styles.inputError : ""}`}
       >
         <option value="">Select {label.toLowerCase()}</option>
         {options.map((option) =>

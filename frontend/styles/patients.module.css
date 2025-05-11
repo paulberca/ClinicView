@@ -180,3 +180,11 @@
 .sortable:hover {
   background-color: #b9b9b9;
 }
+
+.select {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  max-height: 2000px; /* Controls visible height */
+  overflow-y: auto; /* Enables scrolling */
+}

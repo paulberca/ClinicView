@@ -36,7 +36,7 @@ export const fetchPatients = async (
 
 export const fetchDoctors = async (
   page = 1,
-  limit = 10,
+  limit = 100,
   search = "",
   sortBy = "",
   sortOrder = "asc"
