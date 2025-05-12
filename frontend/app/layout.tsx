@@ -10,9 +10,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   // 💡 Hack to disable Sidebar on auth pages
-  const pathname = typeof window !== "undefined" ? window.location.pathname : "";
-
-  const isAuthPage = pathname.startsWith("/auth");
+  const isAuthPage =
+    typeof window !== "undefined" &&
+    window.location.pathname.startsWith("/auth");
 
   return (
     <html lang="en">

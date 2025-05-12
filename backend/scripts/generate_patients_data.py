@@ -18,19 +18,23 @@ def generate_family_doctors():
                    'Dermatology', 'Psychiatry', 'Oncology', 'Gastroenterology', 'Endocrinology']
 
     for _ in range(MAX_DOCTORS):
+        full_name = fake.name()
         doctors.append({
-            "name": f"Dr. {fake.name()}",
+            "name": full_name,
             "specialty": random.choice(specialties),
             "contact_number": fake.phone_number()
         })
     
     return doctors
 
-def generate_doctor_users():
+def generate_doctor_users(doctors):
     users = []
-    for i in range(MAX_DOCTORS):
-        email = f"doctor{i+1}@gmail.com"
-        password = "parola"  # replace with actual hash if needed
+    for d in doctors:
+        name_parts = d["name"].split()
+        first = name_parts[0].lower()
+        last = name_parts[-1].lower()
+        email = f"{first}.{last}@gmail.com"
+        password = "parola"  # Replace with hash if needed
         users.append({
             "email": email,
             "password": password,
@@ -161,7 +165,7 @@ if __name__ == "__main__":
 
     # Generate and insert users for doctors
     doctors = generate_family_doctors()
-    users = generate_doctor_users()  # Pass the doctors list to generate users
+    users = generate_doctor_users(doctors)  # Pass the doctors list to generate users
     user_ids = insert_doctor_users(conn, users)  # Insert users into DB
 
     # Generate and insert doctors linked to users

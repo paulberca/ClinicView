@@ -54,7 +54,10 @@ const StatsScreen = () => {
       return currentYear - birthYear;
     });
     const totalAge = ages.reduce((sum, age) => sum + age, 0);
-    const averageAge = totalAge / ages.length;
+    let averageAge = totalAge / ages.length;
+    if (isNaN(averageAge)) {
+      averageAge = 0;
+    }
 
     const currentYearAdmissions = patients.filter((patient) => {
       return new Date(patient.admissionDate).getFullYear() === currentYear;
