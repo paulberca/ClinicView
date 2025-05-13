@@ -92,3 +92,8 @@ export const fetchLogs = async () => {
   const res = await axios.get("/logs");
   return res.data;
 };
+
+export const fetchMonitoredUsers = async () => {
+  const res = await axios.get("/logs/monitored-users");
+  return res.data;
+};

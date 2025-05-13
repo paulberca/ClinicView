@@ -2,11 +2,13 @@
 
 import { useEffect, useState } from "react";
 import styles from "@/styles/patients.module.css";
-import { fetchLogs } from "@/lib/api";
+import { fetchLogs, fetchMonitoredUsers } from "@/lib/api";
 
 export default function LogsTable() {
   const [logs, setLogs] = useState<any[]>([]);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [showMonitoredUsers, setShowMonitoredUsers] = useState(false);
+  const [monitoredUsers, setMonitoredUsers] = useState<any[]>([]);
 
   useEffect(() => {
     loadLogs();
@@ -15,15 +17,26 @@ export default function LogsTable() {
   const loadLogs = async () => {
     try {
       const data = await fetchLogs();
-      // const sorted = [...data].sort((a, b) =>
-      //   sortOrder === "asc"
-      //     ? new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
-      //     : new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-      // );
-      // setLogs(sorted);
       setLogs(data);
     } catch (error) {
       console.error("Failed to fetch logs:", error);
+    }
+  };
+
+  const loadMonitoredUsers = async () => {
+    try {
+      const data = await fetchMonitoredUsers();
+      setMonitoredUsers(data);
+    } catch (error) {
+      console.error("Failed to fetch monitored users:", error);
+    }
+  };
+
+  const toggleMonitoredUsers = async () => {
+    const nextState = !showMonitoredUsers;
+    setShowMonitoredUsers(nextState);
+    if (nextState) {
+      await loadMonitoredUsers();
     }
   };
 
@@ -32,8 +45,44 @@ export default function LogsTable() {
   };
 
   return (
-    <div className="p-4">
+    <div className="formContainer">
       <h2 className={styles.heading}>Activity Log</h2>
+
+      <div className="searchAddContainer">
+        <button className="addButton" onClick={toggleMonitoredUsers}>
+          {showMonitoredUsers ? "Hide Monitored Users" : "Show Monitored Users"}
+        </button>
+      </div>
+
+      {showMonitoredUsers && (
+        <div className="mb-6 border border-red-400 p-4 rounded bg-red-50 shadow-sm">
+          <h3 className="text-lg font-semibold text-red-600 mb-3">
+            Monitored Users
+          </h3>
+          {monitoredUsers.length === 0 ? (
+            <p className="text-gray-600">No suspicious activity detected.</p>
+          ) : (
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>Email</th>
+                  <th>Reason</th>
+                  <th>Timestamp</th>
+                </tr>
+              </thead>
+              <tbody>
+                {monitoredUsers.map((user, idx) => (
+                  <tr key={idx}>
+                    <td>{user.email || "Unknown"}</td>
+                    <td>{user.reason}</td>
+                    <td>{new Date(user.createdAt).toLocaleString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      )}
 
       <table className={styles.table}>
         <thead>
@@ -42,10 +91,9 @@ export default function LogsTable() {
             <th>Action</th>
             <th>Entity</th>
             <th>Entity ID</th>
-            {/* <th onClick={toggleSort} className={styles.sortable}>
+            <th onClick={toggleSort} className={styles.sortable}>
               Timestamp {sortOrder === "asc" ? "↑" : "↓"}
-            </th> */}
-            <th>Timestamp</th>
+            </th>
           </tr>
         </thead>
         <tbody>
