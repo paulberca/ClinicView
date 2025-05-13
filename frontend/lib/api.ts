@@ -87,3 +87,8 @@ export const register = async (
   const res = await axios.post("/auth/register", { email, password, role });
   return res.data;
 };
+
+export const fetchLogs = async () => {
+  const res = await axios.get("/logs");
+  return res.data;
+};

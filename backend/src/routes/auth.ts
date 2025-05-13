@@ -56,19 +56,4 @@ router.get("/me", authenticate, (req, res) => {
   res.json({ role: user.role });
 });
 
-router.get("/logs", authenticate, async (req, res) => {
-  const user = (req as any).user;
-  if (user.role !== "ADMIN") {
-    // return res.status(403).json({ error: "Access denied" });
-    throw new Error("Access denied");
-  }
-
-  const logs = await prisma.activityLog.findMany({
-    include: { user: { select: { email: true } } },
-    orderBy: { timestamp: "desc" },
-  });
-
-  res.json(logs);
-});
-
 export default router;

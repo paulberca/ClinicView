@@ -54,7 +54,7 @@ router.get("/:id", async (req, res) => {
   res.json(patient);
 });
 
-router.post("/", async (req, res) => {
+router.post("/", authenticate, async (req, res) => {
   try {
     const data = req.body;
 
@@ -71,21 +71,21 @@ router.post("/", async (req, res) => {
       },
     });
 
-    res.json(patient);
-
     await logActivity({
       userId: (req as any).user.userId,
       action: "CREATE",
       entity: "Patient",
       entityId: patient.id,
     });
+
+    res.json(patient);
   } catch (err) {
     console.error("Error creating patient:", err);
     res.status(500).json({ error: "Internal server error" });
   }
 });
 
-router.put("/:id", async (req, res) => {
+router.put("/:id", authenticate, async (req, res) => {
   const { id } = req.params;
   const data = req.body;
 
@@ -119,25 +119,24 @@ router.put("/:id", async (req, res) => {
       },
     });
 
-    res.json(updatedPatient);
-
     await logActivity({
       userId: (req as any).user.userId,
       action: "UPDATE",
       entity: "Patient",
       entityId: Number(id),
     });
+
+    res.json(updatedPatient);
   } catch (error) {
     console.error("Error updating patient:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
 
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", authenticate, async (req, res) => {
   const patient = await prisma.patient.delete({
     where: { id: Number(req.params.id) },
   });
-  res.json(patient);
 
   await logActivity({
     userId: (req as any).user.userId,
@@ -145,6 +144,8 @@ router.delete("/:id", async (req, res) => {
     entity: "Patient",
     entityId: Number(req.params.id),
   });
+
+  res.json(patient);
 });
 
 export default router;

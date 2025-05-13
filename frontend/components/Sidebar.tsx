@@ -76,6 +76,23 @@ export default function Sidebar() {
               Stats
             </a>
           </li>
+          {role === "ADMIN" && (
+            <li className={styles.navItem}>
+              <a
+                href="#"
+                className={clsx(
+                  styles.navLink,
+                  pathname.startsWith("/logs") && styles.navLinkActive
+                )}
+                onClick={(e) => {
+                  e.preventDefault();
+                  router.push("/logs");
+                }}
+              >
+                Activity Logs
+              </a>
+            </li>
+          )}
         </ul>
       </nav>
     </div>
