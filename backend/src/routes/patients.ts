@@ -2,6 +2,7 @@ import express from "express";
 import { prisma } from "../prisma";
 import { Prisma } from "@prisma/client";
 import { authenticate } from "../middleware/auth";
+import { logActivity } from "../middleware/logActivity";
 
 const router = express.Router();
 
@@ -71,6 +72,13 @@ router.post("/", async (req, res) => {
     });
 
     res.json(patient);
+
+    await logActivity({
+      userId: (req as any).user.userId,
+      action: "CREATE",
+      entity: "Patient",
+      entityId: patient.id,
+    });
   } catch (err) {
     console.error("Error creating patient:", err);
     res.status(500).json({ error: "Internal server error" });
@@ -112,6 +120,13 @@ router.put("/:id", async (req, res) => {
     });
 
     res.json(updatedPatient);
+
+    await logActivity({
+      userId: (req as any).user.userId,
+      action: "UPDATE",
+      entity: "Patient",
+      entityId: Number(id),
+    });
   } catch (error) {
     console.error("Error updating patient:", error);
     res.status(500).json({ error: "Internal server error" });
@@ -123,6 +138,13 @@ router.delete("/:id", async (req, res) => {
     where: { id: Number(req.params.id) },
   });
   res.json(patient);
+
+  await logActivity({
+    userId: (req as any).user.userId,
+    action: "DELETE",
+    entity: "Patient",
+    entityId: Number(req.params.id),
+  });
 });
 
 export default router;

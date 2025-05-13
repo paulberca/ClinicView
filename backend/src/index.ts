@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import patientRoutes from "./routes/patients";
 import doctorRoutes from "./routes/doctors";
 import authRoutes from "./routes/auth";
+import logsRoutes from "./routes/logs";
 
 dotenv.config();
 const app = express();
@@ -13,6 +14,7 @@ app.use(express.json());
 app.use("/auth", authRoutes);
 app.use("/patients", patientRoutes);
 app.use("/doctors", doctorRoutes);
+app.use("/logs", logsRoutes);
 
 app.get("/ping", (req, res) => {
   res.status(200).send("pong");

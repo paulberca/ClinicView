@@ -1,6 +1,7 @@
 import { Router } from "express";
 import jwt from "jsonwebtoken";
 import { prisma } from "../prisma";
+import { authenticate } from "../middleware/auth";
 
 const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -48,6 +49,26 @@ router.post("/login", async (req, res) => {
   });
 
   res.json({ token });
+});
+
+router.get("/me", authenticate, (req, res) => {
+  const user = (req as any).user;
+  res.json({ role: user.role });
+});
+
+router.get("/logs", authenticate, async (req, res) => {
+  const user = (req as any).user;
+  if (user.role !== "ADMIN") {
+    // return res.status(403).json({ error: "Access denied" });
+    throw new Error("Access denied");
+  }
+
+  const logs = await prisma.activityLog.findMany({
+    include: { user: { select: { email: true } } },
+    orderBy: { timestamp: "desc" },
+  });
+
+  res.json(logs);
 });
 
 export default router;

@@ -18,8 +18,8 @@ model FamilyDoctor {
   name          String
   specialty     String
   contactNumber String
-  userId        Int?       @unique
-  user          User?      @relation(fields: [userId], references: [id])
+  userId        Int?      @unique
+  user          User?     @relation(fields: [userId], references: [id])
   patients      Patient[]
 }
 
@@ -45,11 +45,12 @@ model Patient {
 }
 
 model User {
-  id       Int           @id @default(autoincrement())
-  email    String        @unique
-  password String
-  role     Role
-  doctor   FamilyDoctor?
+  id          Int           @id @default(autoincrement())
+  email       String        @unique
+  password    String
+  role        Role
+  doctor      FamilyDoctor?
+  ActivityLog ActivityLog[]
 
   @@map("users")
 }
@@ -57,4 +58,14 @@ model User {
 enum Role {
   ADMIN
   DOCTOR
+}
+
+model ActivityLog {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  action    String
+  entity    String
+  entityId  Int?
+  timestamp DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
 }
