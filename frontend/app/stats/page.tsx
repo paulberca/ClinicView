@@ -16,7 +16,7 @@ const StatsScreen = () => {
     const loadPatients = async () => {
       const allPatients: any[] = [];
       let page = 1;
-      const limit = 50000;
+      const limit = 10000;
       let fetched = [];
 
       try {
