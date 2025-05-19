@@ -16,7 +16,7 @@ const StatsScreen = () => {
     const loadPatients = async () => {
       const allPatients: any[] = [];
       let page = 1;
-      const limit = 50000;
+      const limit = 10000;
       let fetched = [];
 
       try {
@@ -54,7 +54,10 @@ const StatsScreen = () => {
       return currentYear - birthYear;
     });
     const totalAge = ages.reduce((sum, age) => sum + age, 0);
-    const averageAge = totalAge / ages.length;
+    let averageAge = totalAge / ages.length;
+    if (isNaN(averageAge)) {
+      averageAge = 0;
+    }
 
     const currentYearAdmissions = patients.filter((patient) => {
       return new Date(patient.admissionDate).getFullYear() === currentYear;

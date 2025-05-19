@@ -68,17 +68,37 @@ router.get("/:id", async (req, res) => {
 });
 
 // Create a new doctor
+// Create a new doctor
 router.post("/", async (req, res) => {
   try {
     const data = req.body;
 
-    const doctor = await prisma.familyDoctor.create({
-      data,
+    // Extract first and last name from full name
+    const nameParts = data.name.trim().split(" ");
+    const first = nameParts[0].toLowerCase();
+    const last = nameParts[nameParts.length - 1].toLowerCase();
+    const generatedEmail = `${first}.${last}@gmail.com`;
+
+    // First, create the User
+    const user = await prisma.user.create({
+      data: {
+        email: generatedEmail,
+        password: "parola", // In production, hash this!
+        role: "DOCTOR",
+      },
     });
 
-    res.json(doctor);
+    // Then, create the doctor linked to this user
+    const doctor = await prisma.familyDoctor.create({
+      data: {
+        ...data,
+        userId: user.id,
+      },
+    });
+
+    res.json({ ...doctor, email: generatedEmail });
   } catch (err) {
-    console.error("Error creating doctor:", err);
+    console.error("Error creating doctor and user:", err);
     res.status(500).json({ error: "Internal server error" });
   }
 });

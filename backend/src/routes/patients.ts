@@ -1,27 +1,30 @@
 import express from "express";
 import { prisma } from "../prisma";
 import { Prisma } from "@prisma/client";
+import { authenticate } from "../middleware/auth";
+import { logActivity } from "../middleware/logActivity";
 
 const router = express.Router();
 
-router.get("/", async (req, res) => {
+router.get("/", authenticate, async (req, res) => {
+  const user = (req as any).user;
+
   const page = parseInt(req.query.page as string) || 1;
   const limit = parseInt(req.query.limit as string) || 1000;
   const search = req.query.search as string;
-  const sortBy = req.query.sortBy as string; // e.g., "condition" or "admissionDate"
-  const sortOrder = (req.query.sortOrder as string) === "desc" ? "desc" : "asc"; // default to "asc"
+  const sortBy = req.query.sortBy as string;
+  const sortOrder = (req.query.sortOrder as string) === "desc" ? "desc" : "asc";
   const skip = (page - 1) * limit;
 
-  const where: Prisma.PatientWhereInput = search
-    ? {
-        name: {
-          contains: search,
-          mode: Prisma.QueryMode.insensitive,
-        },
-      }
-    : {};
+  const where: Prisma.PatientWhereInput = {
+    ...(search && {
+      name: { contains: search, mode: Prisma.QueryMode.insensitive },
+    }),
+    ...(user.role === "DOCTOR" && {
+      familyDoctor: { userId: user.userId },
+    }),
+  };
 
-  // Default sort is by ID if no valid sortBy is given
   const validSortFields = ["condition", "admissionDate"];
   const orderBy: Prisma.PatientOrderByWithRelationInput =
     validSortFields.includes(sortBy) ? { [sortBy]: sortOrder } : { id: "asc" };
@@ -32,9 +35,7 @@ router.get("/", async (req, res) => {
     take: limit,
     orderBy,
     include: {
-      familyDoctor: {
-        select: { id: true, name: true }, // Include doctor ID and name
-      },
+      familyDoctor: { select: { id: true, name: true } },
     },
   });
 
@@ -53,7 +54,7 @@ router.get("/:id", async (req, res) => {
   res.json(patient);
 });
 
-router.post("/", async (req, res) => {
+router.post("/", authenticate, async (req, res) => {
   try {
     const data = req.body;
 
@@ -70,6 +71,13 @@ router.post("/", async (req, res) => {
       },
     });
 
+    await logActivity({
+      userId: (req as any).user.userId,
+      action: "CREATE",
+      entity: "Patient",
+      entityId: patient.id,
+    });
+
     res.json(patient);
   } catch (err) {
     console.error("Error creating patient:", err);
@@ -77,7 +85,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.put("/:id", async (req, res) => {
+router.put("/:id", authenticate, async (req, res) => {
   const { id } = req.params;
   const data = req.body;
 
@@ -111,6 +119,13 @@ router.put("/:id", async (req, res) => {
       },
     });
 
+    await logActivity({
+      userId: (req as any).user.userId,
+      action: "UPDATE",
+      entity: "Patient",
+      entityId: Number(id),
+    });
+
     res.json(updatedPatient);
   } catch (error) {
     console.error("Error updating patient:", error);
@@ -118,10 +133,18 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", authenticate, async (req, res) => {
   const patient = await prisma.patient.delete({
     where: { id: Number(req.params.id) },
   });
+
+  await logActivity({
+    userId: (req as any).user.userId,
+    action: "DELETE",
+    entity: "Patient",
+    entityId: Number(req.params.id),
+  });
+
   res.json(patient);
 });
 

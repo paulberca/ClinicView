@@ -18,22 +18,53 @@ def generate_family_doctors():
                    'Dermatology', 'Psychiatry', 'Oncology', 'Gastroenterology', 'Endocrinology']
 
     for _ in range(MAX_DOCTORS):
+        full_name = fake.name()
         doctors.append({
-            "name": f"Dr. {fake.name()}",
+            "name": full_name,
             "specialty": random.choice(specialties),
             "contact_number": fake.phone_number()
         })
     
     return doctors
 
-def insert_family_doctors(conn, doctors):
+def generate_doctor_users(doctors):
+    users = []
+    for d in doctors:
+        name_parts = d["name"].split()
+        first = name_parts[0].lower()
+        last = name_parts[-1].lower()
+        email = f"{first}.{last}@gmail.com"
+        password = "parola"  # Replace with hash if needed
+        users.append({
+            "email": email,
+            "password": password,
+            "role": "DOCTOR"
+        })
+    return users
+
+def insert_doctor_users(conn, users):
+    cur = conn.cursor()
+    user_ids = []
+    for u in users:
+        cur.execute("""
+            INSERT INTO "users" ("email", "password", "role")
+            VALUES (%s, %s, %s) RETURNING id
+        """, (u["email"], u["password"], u["role"]))
+        user_id = cur.fetchone()[0]
+        user_ids.append(user_id)
+
+    conn.commit()
+    cur.close()
+    return user_ids
+
+def insert_family_doctors(conn, doctors, user_ids):
     cur = conn.cursor()
     ids = []
-    for d in doctors:
+    for i, d in enumerate(doctors):
         cur.execute("""
-            INSERT INTO "FamilyDoctor" ("name", "specialty", "contactNumber")
-            VALUES (%s, %s, %s) RETURNING id
-        """, (d['name'], d['specialty'], d['contact_number']))
+            INSERT INTO "FamilyDoctor" ("name", "specialty", "contactNumber", "userId")
+            VALUES (%s, %s, %s, %s) RETURNING id
+        """, (d['name'], d['specialty'], d['contact_number'], user_ids[i]))
         doctor_id = cur.fetchone()[0]
         ids.append(doctor_id)
 
@@ -107,6 +138,15 @@ def insert_patients(conn, patients):
     cur.close()
     print(f"✅ Inserted {len(patients)} patients into the database.")
 
+def clear_database(conn):
+    cur = conn.cursor()
+    # Delete data from all relevant tables
+    cur.execute('DELETE FROM "Patient";')
+    cur.execute('DELETE FROM "FamilyDoctor";')
+    cur.execute('DELETE FROM "users";')
+    conn.commit()
+    cur.close()
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate random patient and doctor data and insert into PostgreSQL")
     parser.add_argument('--count', type=int, default=20, help="Number of patients to generate (default: 20)")
@@ -119,19 +159,23 @@ if __name__ == "__main__":
         password=os.getenv("PG_PASSWORD", "password"),
         port=os.getenv("PG_PORT", 5432)
     )
-
+   
     # Clear existing data
-    with conn.cursor() as cur:
-        cur.execute('DELETE FROM "Patient";')
-        cur.execute('DELETE FROM "FamilyDoctor";')
-        conn.commit()
+    clear_database(conn)
 
-    # Generate and insert doctors
+    # Generate and insert users for doctors
     doctors = generate_family_doctors()
-    doctor_ids = insert_family_doctors(conn, doctors)
+    users = generate_doctor_users(doctors)  # Pass the doctors list to generate users
+    user_ids = insert_doctor_users(conn, users)  # Insert users into DB
+
+    # Generate and insert doctors linked to users
+    doctor_ids = insert_family_doctors(conn, doctors, user_ids)  # Insert family doctors
 
     # Generate and insert patients
     patients = generate_patients(args.count, doctor_ids)
     insert_patients(conn, patients)
 
     conn.close()
+
+
+# python backend/scripts/generate_patients_data.py --count 100000

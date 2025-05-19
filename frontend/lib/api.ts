@@ -1,5 +1,20 @@
 import axios from "@/lib/axios";
 
+let token: string | null = null;
+
+// Called after login to set the token
+export const setToken = (newToken: string) => {
+  token = newToken;
+};
+
+// Automatically attach the token to all requests
+axios.interceptors.request.use((config) => {
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 export const fetchPatients = async (
   page = 1,
   limit = 10,
@@ -21,7 +36,7 @@ export const fetchPatients = async (
 
 export const fetchDoctors = async (
   page = 1,
-  limit = 10,
+  limit = 100,
   search = "",
   sortBy = "",
   sortOrder = "asc"
@@ -55,5 +70,30 @@ export const updateDoctor = async (id: number, doctorData: any) => {
 
 export const deleteDoctor = async (id: number) => {
   const res = await axios.delete(`/doctors/${id}`);
+  return res.data;
+};
+
+// Authentication API
+export const login = async (email: string, password: string) => {
+  const res = await axios.post("/auth/login", { email, password });
+  setToken(res.data.token);
+};
+
+export const register = async (
+  email: string,
+  password: string,
+  role: "ADMIN" | "DOCTOR"
+) => {
+  const res = await axios.post("/auth/register", { email, password, role });
+  return res.data;
+};
+
+export const fetchLogs = async () => {
+  const res = await axios.get("/logs");
+  return res.data;
+};
+
+export const fetchMonitoredUsers = async () => {
+  const res = await axios.get("/logs/monitored-users");
   return res.data;
 };

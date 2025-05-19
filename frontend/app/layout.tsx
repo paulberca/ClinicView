@@ -1,8 +1,7 @@
 import "./globals.css";
-import { Toaster } from "react-hot-toast";
 import { ConnectionErrorProvider } from "@/contexts/ConnectionErrorContext";
-import Sidebar from "@/components/Sidebar";
-import styles from "@/styles/layoutWrapper.module.css";
+import LayoutWrapper from "@/components/LayoutWrapper"; // client-side logic
+import { Toaster } from "react-hot-toast";
 
 export default function RootLayout({
   children,
@@ -13,10 +12,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <ConnectionErrorProvider>
-          <div className={styles.container}>
-            <Sidebar />
-            <main className={styles.mainContent}>{children}</main>
-          </div>
+          <LayoutWrapper>{children}</LayoutWrapper>
           <Toaster position="top-right" reverseOrder={false} />
         </ConnectionErrorProvider>
       </body>
