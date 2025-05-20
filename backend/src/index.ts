@@ -26,22 +26,22 @@ app.listen(PORT, () => {
   console.log(`Server is running at http://localhost:${PORT}`);
 
   // initial scan for suspicious activity
-  (async () => {
-    try {
-      await detectSuspiciousUsers();
-      console.log("Initial suspicious activity scan complete.");
-    } catch (err) {
-      console.error("Initial scan failed:", err);
-    }
-  })();
+  // (async () => {
+  //   try {
+  //     await detectSuspiciousUsers();
+  //     console.log("Initial suspicious activity scan complete.");
+  //   } catch (err) {
+  //     console.error("Initial scan failed:", err);
+  //   }
+  // })();
 
-  // periodic scan
-  setInterval(async () => {
-    console.log("Checking for suspicious activity...");
-    try {
-      await detectSuspiciousUsers();
-    } catch (err) {
-      console.error("Error detecting suspicious activity:", err);
-    }
-  }, 60 * 1000); // Every minute
+  // // periodic scan
+  // setInterval(async () => {
+  //   console.log("Checking for suspicious activity...");
+  //   try {
+  //     await detectSuspiciousUsers();
+  //   } catch (err) {
+  //     console.error("Error detecting suspicious activity:", err);
+  //   }
+  // }, 60 * 1000); // Every minute
 });
