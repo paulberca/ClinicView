@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { Pie } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
-import styles from "@/styles/StatsScreen.module.css";
+import styles from "@/styles/statsScreen.module.css"; // case sensitive import
 import { fetchPatients } from "@/lib/api";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
