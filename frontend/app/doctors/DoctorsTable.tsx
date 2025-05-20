@@ -5,9 +5,18 @@ import { useEffect, useRef, useState } from "react";
 import { fetchDoctors } from "@/lib/api";
 import { useRouter } from "next/navigation";
 
+// Define a proper type for Doctor
+interface Doctor {
+  id: number;
+  name: string;
+  specialty: string;
+  contactNumber: string;
+  patientCount: number;
+}
+
 export default function DoctorsTable({ searchTerm }: { searchTerm: string }) {
   const router = useRouter();
-  const [doctors, setDoctors] = useState<any[]>([]);
+  const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [sortBy, setSortBy] = useState<"specialty" | "patientCount" | "">("");

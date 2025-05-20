@@ -8,16 +8,26 @@ import { fetchPatients } from "@/lib/api";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
+// Define a proper interface for Patient
+interface Patient {
+  id: number;
+  name: string;
+  gender: string;
+  dateOfBirth: string;
+  admissionDate: string;
+  condition: string;
+}
+
 const StatsScreen = () => {
-  const [patients, setPatients] = useState<any[]>([]);
+  const [patients, setPatients] = useState<Patient[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     const loadPatients = async () => {
-      const allPatients: any[] = [];
+      const allPatients: Patient[] = [];
       let page = 1;
       const limit = 10000;
-      let fetched = [];
+      let fetched: Patient[] = [];
 
       try {
         do {
@@ -39,12 +49,22 @@ const StatsScreen = () => {
 
   const calculateStats = () => {
     const totalPatients = patients.length;
-    const conditionCounts = patients.reduce((acc, patient) => {
+
+    interface ConditionCounts {
+      [key: string]: number;
+    }
+
+    interface GenderCounts {
+      [key: string]: number;
+    }
+
+    const conditionCounts = patients.reduce<ConditionCounts>((acc, patient) => {
       const condition = patient.condition.toLowerCase();
       acc[condition] = (acc[condition] || 0) + 1;
       return acc;
     }, {});
-    const genderCounts = patients.reduce((acc, patient) => {
+
+    const genderCounts = patients.reduce<GenderCounts>((acc, patient) => {
       acc[patient.gender] = (acc[patient.gender] || 0) + 1;
       return acc;
     }, {});
