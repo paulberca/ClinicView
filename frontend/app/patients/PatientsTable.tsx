@@ -5,10 +5,21 @@ import { useEffect, useRef, useState } from "react";
 import { fetchPatients } from "@/lib/api";
 import { useRouter } from "next/navigation";
 
+// Define a proper interface for Patient
+interface Patient {
+  id: number;
+  name: string;
+  gender: string;
+  contactNumber: string;
+  bloodType: string;
+  admissionDate: string;
+  condition: string;
+}
+
 export default function PatientsTable({ searchTerm }: { searchTerm: string }) {
   const router = useRouter();
 
-  const [patients, setPatients] = useState<any[]>([]);
+  const [patients, setPatients] = useState<Patient[]>([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [sortBy, setSortBy] = useState<"condition" | "admissionDate" | "">("");

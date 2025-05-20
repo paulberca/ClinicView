@@ -17,7 +17,7 @@ export default function RegisterPage() {
     try {
       await register(email, password, role);
       router.push("/auth/login");
-    } catch (err) {
+    } catch {
       setError("Registration failed");
     }
   };
@@ -51,10 +51,7 @@ export default function RegisterPage() {
           <option value="ADMIN">Admin</option>
         </select>
         {error && <p className={styles.errorText}>{error}</p>}
-        <button
-          type="submit"
-          className={styles.submitButton}
-        >
+        <button type="submit" className={styles.submitButton}>
           Register
         </button>
       </form>

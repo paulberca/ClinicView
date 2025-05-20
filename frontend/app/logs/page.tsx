@@ -4,11 +4,30 @@ import { useEffect, useState } from "react";
 import styles from "@/styles/patients.module.css";
 import { fetchLogs, fetchMonitoredUsers } from "@/lib/api";
 
+// Define interfaces for the data types
+interface User {
+  email: string;
+}
+
+interface Log {
+  user?: User;
+  action: string;
+  entity: string;
+  entityId?: number | string;
+  timestamp: string;
+}
+
+interface MonitoredUser {
+  email: string;
+  reason: string;
+  createdAt: string;
+}
+
 export default function LogsTable() {
-  const [logs, setLogs] = useState<any[]>([]);
+  const [logs, setLogs] = useState<Log[]>([]);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [showMonitoredUsers, setShowMonitoredUsers] = useState(false);
-  const [monitoredUsers, setMonitoredUsers] = useState<any[]>([]);
+  const [monitoredUsers, setMonitoredUsers] = useState<MonitoredUser[]>([]);
 
   useEffect(() => {
     loadLogs();

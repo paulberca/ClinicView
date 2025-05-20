@@ -1,5 +1,8 @@
 import axios from "@/lib/axios";
 
+// Import the Doctor type from DoctorForm
+import { Doctor } from "@/app/doctors/DoctorForm";
+
 let token: string | null = null;
 
 // Called after login to set the token
@@ -58,12 +61,12 @@ export const fetchDoctorById = async (id: number) => {
   return res.data;
 };
 
-export const createDoctor = async (doctorData: any) => {
+export const createDoctor = async (doctorData: Doctor) => {
   const res = await axios.post("/doctors", doctorData);
   return res.data;
 };
 
-export const updateDoctor = async (id: number, doctorData: any) => {
+export const updateDoctor = async (id: number, doctorData: Doctor) => {
   const res = await axios.put(`/doctors/${id}`, doctorData);
   return res.data;
 };

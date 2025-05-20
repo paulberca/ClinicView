@@ -16,7 +16,7 @@ export default function LoginPage() {
     try {
       await login(email, password);
       router.push("/patients"); // or redirect to dashboard
-    } catch (err) {
+    } catch {
       setError("Invalid credentials");
     }
   };
@@ -42,10 +42,7 @@ export default function LoginPage() {
           required
         />
         {error && <p className={styles.errorText}>{error}</p>}
-        <button
-          type="submit"
-          className={styles.submitButton}
-        >
+        <button type="submit" className={styles.submitButton}>
           Login
         </button>
       </form>
