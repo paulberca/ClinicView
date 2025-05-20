@@ -22,6 +22,8 @@ cur.execute('SELECT * FROM "users";')
 # Fetch all results
 users = cur.fetchall()
 
+print("Users in the database:")
+
 # Print the users
 for user in users:
     print(user)
