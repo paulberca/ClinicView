@@ -2,7 +2,7 @@ import axios from "axios";
 import { showConnectionError } from "@/contexts/ConnectionErrorContext";
 
 const instance = axios.create({
-  baseURL: "http://localhost:4000", // your backend base URL
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
   timeout: 5000,
 });
 
