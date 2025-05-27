@@ -12,6 +12,17 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+app.use((req, res, next) => {
+  if (
+    process.env.NODE_ENV === "production" &&
+    req.headers["x-forwarded-proto"] !== "https"
+  ) {
+    // Redirect to HTTPS
+    return res.redirect("https://" + req.headers.host + req.url);
+  }
+  next();
+});
+
 app.use("/auth", authRoutes);
 app.use("/patients", patientRoutes);
 app.use("/doctors", doctorRoutes);
