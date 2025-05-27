@@ -5,9 +5,25 @@ import { Doctor } from "@/app/doctors/DoctorForm";
 
 let token: string | null = null;
 
+// On app load, try to load token from localStorage
+if (typeof window !== "undefined") {
+  token = localStorage.getItem("token");
+}
+
 // Called after login to set the token
 export const setToken = (newToken: string) => {
   token = newToken;
+  if (typeof window !== "undefined") {
+    localStorage.setItem("token", newToken);
+  }
+};
+
+// Optionally, add a logout function
+export const clearToken = () => {
+  token = null;
+  if (typeof window !== "undefined") {
+    localStorage.removeItem("token");
+  }
 };
 
 // Automatically attach the token to all requests
